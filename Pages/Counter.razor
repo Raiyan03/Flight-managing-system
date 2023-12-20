@@ -212,22 +212,16 @@
     private void OnDepartureChange(ChangeEventArgs e)
     {
         selectedDeparture = e.Value.ToString();
-        // You can add any custom logic you want here
-        //  showFlight();
     }
 
     private void OnDestinationChange(ChangeEventArgs e)
     {
         selectedDestination = e.Value.ToString();
-        //Custom logic for destination change
-        // showFlight();
     }
 
     private void OnDayChange(ChangeEventArgs e)
     {
         selectedDay = e.Value.ToString();
-        // Custom logic for day change
-        // showFlight();
     }
 
     protected override void OnInitialized()
@@ -271,7 +265,7 @@
         try
         {
             ReservationManager reservation = new ReservationManager(enteredName, enteredCitizenship, selectedFlight);
-            findFlights.updateBooking(selectedFlight);
+            findFlights.UpdateBooking(selectedFlight);
             reservation.SaveReservation();
             status = reservation.getReservationCode();
         }

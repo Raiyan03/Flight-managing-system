@@ -8,7 +8,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace flightManager.Data
 {
-    public class ReservationManager 
+    // Manager class responsible for handling reservations
+    public class ReservationManager
     {
         private string reservationCode;
         private Random random = new Random();
@@ -17,22 +18,25 @@ namespace flightManager.Data
         private string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
         DataSerialization dataSerialization = new DataSerialization();
 
-        public ReservationManager() 
+        // Default constructor
+        public ReservationManager()
         {
 
         }
-        public ReservationManager(string Name, string Citizenship, Flight flight )
+
+        // Constructor to create a new reservation
+        public ReservationManager(string Name, string Citizenship, Flight flight)
         {
-
             reservationCode = GenerateReservationCode();
-
-
             Reservation reservation = new Reservation(reservationCode, Name, Citizenship, flight, true);
             LoadReservations();
             reservations.Add(reservation);
         }
+
+        // Generate a unique reservation code
         public string GenerateReservationCode()
         {
+            // Unique code generation logic
             const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
             const string digits = "0123456789";
             StringBuilder randomString = new StringBuilder();
@@ -56,61 +60,71 @@ namespace flightManager.Data
 
             return randomString.ToString();
         }
+
+        // Get the current reservation code
         public string getReservationCode()
         {
             return reservationCode;
         }
 
+        // Check if a reservation code already exists
         public bool ReservationCodeExists(string code)
         {
-            foreach(Reservation reservation in reservations)
+            foreach (Reservation reservation in reservations)
             {
                 if (reservation.ReservationCode == code)
-                { 
-                    return true; 
+                {
+                    return true;
                 }
-
             }
             return false;
         }
-         public void SaveReservation()
+
+        // Save reservations to a JSON file
+        public void SaveReservation()
         {
             dataSerialization.JsonSerialize(reservations, filePath);
         }
+
+        // Load reservations from a JSON file
         public void LoadReservations()
         {
             reservations = dataSerialization.JsonDeserialize(filePath);
         }
 
+        // Search for reservations based on specified criteria
         public List<Reservation> SearchReservation(string ReservationCode, string ReservationName, string AirlineName)
         {
+            // Search logic based on specified criteria
             LoadReservations();
             List<Reservation> SearchedReservations = new List<Reservation>();
 
+            // Check if ReservationName and AirlineName are null
             if (ReservationName == null && AirlineName == null)
             {
+                // Check if ReservationCode is null or empty
                 if (ReservationCode == null || ReservationCode.Length <= 0)
                 {
-                    throw new ReservationCodeNotFoundException("Please enter atleast one out of Reservation Code, Airline or Name");
+                    throw new ReservationCodeNotFoundException("Please enter at least one out of Reservation Code, Airline or Name");
                 }
                 else
                 {
                     foreach (Reservation reservation in reservations)
                     {
+                        // Find matching reservation by ReservationCode and isActive status
                         if (reservation.ReservationCode == ReservationCode && reservation.IsActive == true)
                         {
                             SearchedReservations.Add(reservation);
                             return SearchedReservations;
                         }
                     }
-
-
                 }
                 throw new ReservationCodeNotFoundException("Entered Reservation is invalid");
             }
             // ReservationName is null, but others are not
             else if (ReservationCode != null && ReservationName == null && AirlineName != null)
             {
+                // Find matching reservations by ReservationCode, AirlineName, and isActive status
                 foreach (Reservation reservation in reservations)
                 {
                     if (ReservationCode == reservation.ReservationCode && AirlineName.ToLower() == reservation.Flight.FlightName.ToLower() && reservation.IsActive == true)
@@ -127,6 +141,7 @@ namespace flightManager.Data
             // ReservationCode is null, but others are not
             else if (ReservationCode == null && ReservationName != null && AirlineName != null)
             {
+                // Find matching reservations by ReservationName, AirlineName, and isActive status
                 foreach (Reservation reservation in reservations)
                 {
                     if (ReservationName.ToLower() == reservation.Name.ToLower() && AirlineName.ToLower() == reservation.Flight.FlightName.ToLower() && reservation.IsActive == true)
@@ -143,14 +158,15 @@ namespace flightManager.Data
             // AirlineCode is null, but others are not
             else if (ReservationCode != null && ReservationName != null && AirlineName == null)
             {
-                foreach(Reservation reservation in reservations)
+                // Find matching reservations by ReservationCode, ReservationName, and isActive status
+                foreach (Reservation reservation in reservations)
                 {
-                    if(ReservationCode == reservation.ReservationCode && ReservationName.ToLower() == reservation.Name.ToLower() && reservation.IsActive == true)
+                    if (ReservationCode == reservation.ReservationCode && ReservationName.ToLower() == reservation.Name.ToLower() && reservation.IsActive == true)
                     {
                         SearchedReservations.Add(reservation);
                     }
                 }
-                if(SearchedReservations.Count < 1)
+                if (SearchedReservations.Count < 1)
                 {
                     throw new ReservationCodeNotFoundException("No reservation found");
                 }
@@ -159,9 +175,10 @@ namespace flightManager.Data
             // ReservationCode and ReservationName are null, but AirlineCode is not
             else if (ReservationCode == null && ReservationName == null && AirlineName != null)
             {
-                foreach(Reservation reservation in reservations)
+                // Find matching reservations by AirlineName and isActive status
+                foreach (Reservation reservation in reservations)
                 {
-                    if(AirlineName.ToLower() == reservation.Flight.FlightName.ToLower() && reservation.IsActive == true)
+                    if (AirlineName.ToLower() == reservation.Flight.FlightName.ToLower() && reservation.IsActive == true)
                     {
                         SearchedReservations.Add(reservation);
                     }
@@ -172,23 +189,27 @@ namespace flightManager.Data
                 }
                 return SearchedReservations;
             }
+            // ReservationCode is null, but ReservationName is not null
             else if (ReservationCode == null && ReservationName != null && AirlineName == null)
             {
-                foreach(Reservation reservation in reservations)
+                // Find matching reservations by ReservationName and isActive status
+                foreach (Reservation reservation in reservations)
                 {
-                    if(ReservationName.ToLower() == reservation.Name.ToLower() && reservation.IsActive == true)
+                    if (ReservationName.ToLower() == reservation.Name.ToLower() && reservation.IsActive == true)
                     {
                         SearchedReservations.Add(reservation);
                     }
                 }
                 if (SearchedReservations.Count < 1)
                 {
-                    throw new ReservationCodeNotFoundException("No reservationfound");
+                    throw new ReservationCodeNotFoundException("No reservation found");
                 }
                 return SearchedReservations;
             }
-            else if(ReservationCode != null && ReservationName !=null && AirlineName != null)
+            // ReservationCode, ReservationName, and AirlineCode are not null
+            else if (ReservationCode != null && ReservationName != null && AirlineName != null)
             {
+                // Find matching reservations by ReservationName, ReservationCode, AirlineName, and isActive status
                 foreach (Reservation reservation in reservations)
                 {
                     if (ReservationName.ToLower() == reservation.Name.ToLower() && ReservationCode == reservation.ReservationCode && AirlineName.ToLower() == reservation.Flight.FlightName.ToLower() && reservation.IsActive == true)
@@ -198,13 +219,15 @@ namespace flightManager.Data
                 }
                 if (SearchedReservations.Count < 1)
                 {
-                    throw new ReservationCodeNotFoundException("No reservationfound");
+                    throw new ReservationCodeNotFoundException("No reservation found");
                 }
                 return SearchedReservations;
             }
 
             throw new ReservationCodeNotFoundException("No reservation found");
         }
+
+        // Update reservation details
         public void Update(string Name, string Citizenship, bool isAvtive, Flight flight, Reservation Reservation)
         {
             foreach (Reservation reservation in reservations)
@@ -215,11 +238,11 @@ namespace flightManager.Data
                     {
                         throw new NameNullOrEmptyException("Name cannot be empty");
                     }
-                    else 
+                    else
                     {
                         reservation.Name = Name;
                     }
-                    if(Citizenship == null)
+                    if (Citizenship == null)
                     {
                         throw new CitizenshipNullOrEmptyException("Citizenship cannot be empty");
                     }
@@ -239,6 +262,5 @@ namespace flightManager.Data
                 }
             }
         }
-
     }
 }
