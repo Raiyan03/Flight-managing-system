@@ -8,4 +8,11 @@ As users make bookings, the system efficiently saves their reservation details i
 
 ## Video demo
 
-[![Video Preview](https://drive.google.com/file/d/1RQIe_6cF8Pj9aOcJahpo4TnbpuWbsRKS/preview)](https://clipchamp.com/watch/JB7Vc4lzInc)
+[![Video Preview](https://i.ibb.co/VgdQMs0/Screenshot-2023-12-20-004045.png)](https://clipchamp.com/watch/JB7Vc4lzInc)
+
+## How to use it
+
+* Clone the repository on your PC/Laptop.
+* Open the repository.
+* Launch flightmanager.sln using Visual Studio.
+* Click on Run.
