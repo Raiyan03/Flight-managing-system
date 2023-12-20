@@ -8,6 +8,7 @@ As users make bookings, the system efficiently saves their reservation details i
 
 ## Video demo
 
+* click on the image below to watch the video.
 [![Video Preview](https://i.ibb.co/VgdQMs0/Screenshot-2023-12-20-004045.png)](https://clipchamp.com/watch/JB7Vc4lzInc)
 
 ## How to use it
