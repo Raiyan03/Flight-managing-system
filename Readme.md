@@ -8,4 +8,4 @@ As users make bookings, the system efficiently saves their reservation details i
 
 ## Video demo
 
-[![Video Preview](https://giphy.com/embed/1uNxG8vR3ZQ3jbDuok)](https://clipchamp.com/watch/JB7Vc4lzInc)
+[![Video Preview](https://drive.google.com/file/d/1RQIe_6cF8Pj9aOcJahpo4TnbpuWbsRKS/preview)](https://clipchamp.com/watch/JB7Vc4lzInc)
