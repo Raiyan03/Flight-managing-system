@@ -1,0 +1,284 @@
+﻿@page "/counter"
+
+@using flightManager.Data
+
+
+<style>
+    #flightFinder {
+        margin-bottom: 40px;
+    }
+
+    #flights {
+        margin-bottom: 30px;
+    }
+
+    #reserve {
+        margin-bottom: 20px;
+    }
+
+    .subHeadings {
+    }
+
+    .datafield > * {
+        margin-right: 40px;
+    }
+
+    .findFlightbutton > * {
+        width: 250px;
+        background-color: #0096FF;
+        color: white;
+    }
+
+    .flightList {
+        width: 100%;
+    }
+
+    .centered {
+        text-align: center;
+    }
+
+    #reserveButton {
+        width: 20%;
+        background-color: #0096FF;
+        color: white;
+    }
+
+    .reservationCode {
+        float: left;
+        margin-left: 394px;
+    }
+</style>
+
+<div id="flightFinder" class="subHeadings">
+    <h3 class="centered">Find Flights</h3>
+    <table class="flightDetailForm">
+        <tr class="DetailForm">
+            <td class="datafield">
+                <label for="departure">From:</label><br>
+                <select id="departure" name="departure" @onchange="OnDepartureChange" style="width: 250px">
+                    <option value="Any">Any</option>
+                    @foreach (var airport in airports)
+                    {
+                        <option value="@airport.AirportCode">@airport.AirportCode - @airport.AirportName</option>
+                    }
+
+                </select>
+
+            </td>
+            <td class="datafield">
+                <label for "destination">To:</label><br>
+                <select id="destination" name="destination" @onchange="OnDestinationChange" style="width: 250px">
+                    <option value="Any">Any</option>
+                    @foreach (var airport in airports)
+                    {
+                        <option value="@airport.AirportCode">@airport.AirportCode - @airport.AirportName</option>
+                    }
+                </select>
+            </td>
+            <td class="datafield">
+                <label for="day">Day:</label><br>
+                <select id="day" name="day" @onchange="OnDayChange">
+                    <option value="Any">Any</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                </select>
+            </td>
+
+
+            <td class="findFlightbutton">
+                <br>
+                <button @onclick="showFlight">Find Flights</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="flights" class="subHeadings">
+    <h3 class="centered">Flights</h3>
+    <select class="flightList" @onchange="OnSelectedFlightChange">
+        <option value="null">Select your flight</option>
+        @if (flights != null)
+        {
+            foreach (var flight in flights)
+            {
+                <option value="@flight.FlightNumber">@flight.FlightNumber - @flight.FlightName</option>
+            }
+        }
+    </select>
+</div>
+<div id="reserve" class="subHeadings">
+    <h3 class="centered">Reserve</h3>
+    <div>
+        @*Flight Code*@
+        <label for="flightCode">Flight Code:</label><br />
+        @if(@flightCode != null)
+        {
+            <input class="flightList" type="text" id="flightCode" name="flightCode" placeholder="flight" value="@flightCode" readonly />
+
+            <br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="flightCode" name="flightCode" placeholder="flight" readonly />
+            <br />
+        }
+        @*Airline*@
+        
+        <label for="Airline">Airline:</label><br />
+        @if (flightCode != null)
+        {
+            <input class="flightList" type="text" id="Airline" name="Airline" placeholder="any" value="@flightName" readonly />
+            <br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Airline" name="Airline" placeholder="any" readonly />
+            <br />
+        }
+
+        
+
+        @*Day*@
+        <label for="Day">Day:</label><br />
+        @if (flightCode != null || flightCode != null)
+        {
+            <input class="flightList" type="text" id="Day" name="Day" placeholder="Day" value="@selectedFlight.FlightTakeOffDay" readonly/><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Day" name="Day" placeholder="Day" readonly />
+
+            <br />
+        }
+        @*Time*@
+
+        <label for="Time">Time:</label><br />
+        @if (flightCode != null)
+        {
+            <input class="flightList" type="text" id="Time" name="Time" placeholder="Time" value="@selectedFlight.FlightTime" readonly/><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Time" name="Time" placeholder="Time" readonly />
+
+            <br />
+        }
+        @*Cost*@
+
+        <label for="Cost">Cost:</label><br />
+        @if (flightCode != null)
+        {
+            <input class="flightList" type="text" id="Cost" name="Cost" placeholder="Cost" value="@selectedFlight.Cost" readonly/><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Cost" name="Cost" placeholder="Cost" readonly /><br />
+        }
+        @*Name*@
+        <label for="Name">Name:</label><br />
+        <input class="flightList" type="text" id="Name" name="Name" placeholder="Name" @bind="enteredName" />
+
+        @*Citizenship*@
+        <label for="Citizenship">Citizenship:</label><br />
+        <input class="flightList" type="text" id="Citizenship" name="Citizenship" placeholder="Citizenship" @bind="enteredCitizenship" /><br />
+    </div>
+</div>
+<div class="centered" style=" width:auto">
+    <button id="reserveButton"@onclick="reservation">Reserve</button><br />
+    <p class="reservationCode">Reservation Code: @status</p>
+</div>
+
+
+@code
+{
+    private string selectedDeparture = "Any";
+    private string selectedDestination = "Any";
+    private string selectedDay = "Any";
+    private string flightCode;
+    private string flightName;
+    private string enteredName;
+    private string enteredCitizenship;
+    private string status;
+    public FindFlights findFlights;
+    private Flight selectedFlight;
+    AirportManager Airport = new AirportManager();
+    List<Airport> airports;
+
+    List<Flight> flights;
+    private void OnDepartureChange(ChangeEventArgs e)
+    {
+        selectedDeparture = e.Value.ToString();
+        // You can add any custom logic you want here
+        //  showFlight();
+    }
+
+    private void OnDestinationChange(ChangeEventArgs e)
+    {
+        selectedDestination = e.Value.ToString();
+        //Custom logic for destination change
+        // showFlight();
+    }
+
+    private void OnDayChange(ChangeEventArgs e)
+    {
+        selectedDay = e.Value.ToString();
+        // Custom logic for day change
+        // showFlight();
+    }
+
+    protected override void OnInitialized()
+    {
+        airports = Airport.getAirline();
+    }
+
+    public void showFlight()
+    {
+        findFlights = new FindFlights(selectedDeparture, selectedDestination, selectedDay);
+        flights = findFlights.SearchedFlights();
+        flightCode = null;
+    }
+    private void OnSelectedFlightChange(ChangeEventArgs e)
+    {
+        flightCode = e.Value.ToString();
+        if (flightCode != null && flightCode != "null")
+        {
+            foreach (Flight flight in flights)
+            {
+                if (flightCode == flight.FlightNumber && selectedDay == flight.FlightTakeOffDay && selectedDeparture == flight.FlightFrom && selectedDestination == flight.FlightDestination)
+                {
+                    flightName = flight.FlightName;
+                    flightCode = flight.FlightNumber;
+                    selectedFlight = flight;
+                    break;
+                }
+
+            }
+        }
+        else
+        {
+            flightCode = null;
+        }
+
+
+    }
+    private void reservation()
+    {
+
+        try
+        {
+            ReservationManager reservation = new ReservationManager(enteredName, enteredCitizenship, selectedFlight);
+            findFlights.updateBooking(selectedFlight);
+            reservation.SaveReservation();
+            status = reservation.getReservationCode();
+        }
+        catch(Exception e)
+        {
+           status  = e.Message.ToString();
+        }
+    }
+
+}

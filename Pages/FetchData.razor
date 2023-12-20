@@ -1,0 +1,275 @@
+﻿@page "/FetchData"
+
+@using flightManager.Data
+
+
+<style>
+    #flightFinder
+    {
+        margin-bottom:40px;
+    }
+    #flights
+    {
+        margin-bottom: 30px;
+    }
+    #reserve
+    {
+        margin-bottom: 20px;
+    }
+    .subHeadings
+    {
+
+    }
+    .datafield > *{
+        margin-right: 40px;
+    } 
+    .findFlightbutton > * {
+        width:250px;
+        background-color: #0096FF;
+        color: white;
+    }
+    .flightList{
+        width: 100%;
+        
+    }
+    .centered
+    {
+        text-align: center;
+    }
+    #reserveButton
+    {
+        width: 200px;
+        background-color: #0096FF;
+        color: white;
+    }
+    .reservationCode{
+        float: left;
+        margin-left: 394px;
+    }
+</style>
+
+<div id="flightFinder" class="subHeadings">
+    <h3 class="centered">Find Reservation</h3>
+    <table class="flightDetailForm">
+        <tr class="DetailForm">
+            <td class="datafield">
+                <label for=" Code">Code:</label> <br>
+                <input type="text" id="Code" name="Code" placeholder="Any" @bind=ReservationCode />
+            </td>
+            <td class="datafield">
+                <label for="Airline"> Airline </label> <br>
+                <input type="text" id="Airline" name="Airline" placeholder="Any" @bind=FlightName />
+            </td>
+            <td class="datafield">
+                <label for="day">Name:</label><br>
+                <input type="text" id="day" name="Name" placeholder="Any" @bind=ReservationName />
+            </td>
+            <td class="findFlightbutton">
+                <br>
+                <button @onclick="showReservation">Find reservations</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="flights" class="subHeadings">
+    <h3 class="centered">Reservations</h3>
+    <select class="flightList"  @onchange="OnSelectedReservation">
+        <option value="null">Search your reservation</option>
+        @if (Reservations.Count > 0)
+        {
+            foreach (var reservation in Reservations)
+            {
+                <option value="@reservation.ReservationCode">@reservation.ReservationCode - @reservation.Flight.FlightName - @reservation.Name</option>
+            }
+        }
+        else
+        {
+
+        }
+    </select>
+    @if (statusReservation != null)
+    {
+        <p style="text-align:center">@statusReservation</p>
+    }
+    else
+    {
+        
+    }
+</div>
+<div id="reserve" class="subHeadings">
+    <h3 class="centered">Reserve</h3>
+    <div>
+        @*Reservation code*@
+    <label for="reservationCode">Reservation Code:</label><br />
+        @if (reservationCode != null)
+        {
+            <input class="flightList" type="text" id="reservationCode" name="reservationCode" placeholder="Reservation Code" value="@Reservation.ReservationCode" readonly /><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="reservationCode" name="reservationCode" placeholder="Reservation Code" readonly />
+
+            <br />
+        }
+        @*Flight Code*@
+        <label for="flightCode">Flight Code</label> <br />
+
+        @if (reservationCode != null)
+        {
+            <input class="flightList" type="text" id="flightCode" name="flightCode" placeholder="Airline" value="@Reservation.Flight.FlightNumber" readonly/><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="flightCode" name="flightCode" placeholder="Airline" readonly/>
+
+            <br />
+        }
+        @*Airline*@
+        <label for="Airline">Airline:</label><br />
+        @if(reservationCode != null)
+        {
+            <input class="flightList" type="text" id="Airline" name="Airline" placeholder="Airline" value="@Reservation.Flight.FlightName" readonly />
+
+            <br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Airline" name="Airline" placeholder="Airline" readonly />
+
+            <br />
+        }
+
+        @*Cost*@
+        <label for="Cost">Cost:</label><br />
+        @if(reservationCode != null)
+        {
+            <input class="flightList" type="text" id="Cost" name="Cost" placeholder="Time" value="@Reservation.Flight.Cost" readonly/><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Cost" name="Cost" placeholder="Time" readonly />
+
+            <br />
+        }
+        @*Name*@
+        <label for="Name">Name:</label><br />
+        @if (reservationCode != null)
+        {
+
+            <input class="flightList" type="text" id="Name" name="Name" placeholder="Name" @bind="Name" /><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Name" name="Name" placeholder="Name" />
+
+            <br />
+        }
+        @*Citizenship*@
+        <label for="Citizenship">Citizenship:</label><br />
+        @if (reservationCode != null)
+        {
+            <input class="flightList" type="text" id="Citizenship" name="Citizenship" placeholder="Citizenship" @bind="Citizenship"  /><br />
+        }
+        else
+        {
+            <input class="flightList" type="text" id="Citizenship" name="Citizenship" placeholder="Citizenship"  />
+
+            <br />
+        }
+        @*Status*@
+        <label for="Status">Status:</label><br />
+        <select class="flightList"  @onchange="OnSelectedStatus">
+        @if(reservationCode!=null)
+        {
+                <option value="true">Active</option>
+                <option value="false">InActive</option>
+        }
+        else
+        {
+            <option value="null">--Status--</option>
+        }
+        </select>
+    </div>
+</div>
+<div class="centered" style=" width:auto" >
+    <button id="reserveButton" @onclick=Update>Update</button><br />
+    <p class="reservationCode">@status</p>
+</div>
+
+@code
+{
+    private string ReservationCode = null;
+    private string FlightName = null;
+    private string ReservationName = null;
+    private string Name;
+    private string Citizenship;
+    private bool isActive;
+
+    private List<Reservation> Reservations = new List<Reservation>();
+    private Reservation Reservation;
+    private string reservationCode = null;
+    private string status;
+    private string statusReservation;
+    ReservationManager manager;
+    private void showReservation()
+
+    {
+        statusReservation = null;
+        Reservations.Clear();
+        manager  = new ReservationManager();
+        try
+        {
+            Reservations = manager.SearchReservation(ReservationCode, ReservationName, FlightName);
+        }
+        catch (Exception e)
+        {
+            statusReservation = e.Message.ToString();
+        }
+        ReservationCode = null;
+        FlightName = null;
+        ReservationName = null;
+    }
+    private void OnSelectedReservation(ChangeEventArgs e)
+    {
+        reservationCode = e.Value.ToString();
+
+        foreach(Reservation reservation in Reservations)
+        {
+            if(reservation.ReservationCode == reservationCode)
+            {
+                Reservation = reservation;
+                Name = reservation.Name;
+                Citizenship = reservation.Citizenship;
+                isActive = reservation.IsActive;
+            }
+        }
+    }
+    private void OnSelectedStatus(ChangeEventArgs e)
+    {
+        if(e.Value.ToString() == "true")
+        {
+            isActive = true;
+        }
+        else if(e.Value.ToString() == "false")
+        {
+            isActive = false;
+        }
+    }
+    private void Update()
+    {
+        status = null;
+        try
+        {
+            manager.Update(Name, Citizenship, isActive, Reservation.Flight, Reservation);
+            status = "Reservation detasils updated succesfully";
+            reservationCode = null;
+            Reservations.Clear();
+        }
+        catch(Exception e)
+        {
+            status = e.Message.ToString();
+        }
+
+    }
+
+}
